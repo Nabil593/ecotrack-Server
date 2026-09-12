@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
-import { Payment } from '../../models/payment.model';
-import { Item } from '../../models/Item';
+import { Payment } from '../../models/payment.model.js';
+import { Item } from '../../models/Item.js';
 
 const getStripeInstance = () => {
   return new Stripe(process.env.STRIPE_SECRET_KEY as string, {

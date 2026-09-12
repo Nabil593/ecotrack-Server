@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Item } from '../../models/Item';
-import { Payment } from '../../models/payment.model';
+import { Item } from '../../models/Item.js';
+import { Payment } from '../../models/payment.model.js';
 
 // All Items
 export const getItems = async (req: Request, res: Response) => {
