@@ -9,7 +9,7 @@ const getStripeInstance = () => {
   });
 };
 
-// ১. স্ট্রাইপ চেকআউট সেশন তৈরি করা
+// Stripe checkout session
 export const createCheckoutSession = async (req: Request, res: Response): Promise<void> => {
   try {
     const stripeKey = process.env.STRIPE_SECRET_KEY;
@@ -52,7 +52,7 @@ export const createCheckoutSession = async (req: Request, res: Response): Promis
   }
 };
 
-// ২. পেমেন্ট সফল হওয়ার পর ডাটাবেজে রেকর্ড এবং প্রজেক্ট-ওয়াইজ ব্যাজ সেভ করা
+// Pyment details seve in database
 export const savePaymentRecord = async (req: Request, res: Response): Promise<void> => {
   try {
     const { itemId, title, amount, sessionId, paymentType } = req.body;
@@ -95,8 +95,7 @@ export const savePaymentRecord = async (req: Request, res: Response): Promise<vo
   }
 };
 
-
-// নির্দিষ্ট প্রজেক্টের (itemId) সমস্ত পেমেন্ট বা ফান্ডিং রেকর্ড ফেচ করার জন্য
+// specipec project fund & all payment fetch
 export const getPaymentsByItem = async (req: Request, res: Response): Promise<void> => {
   try {
     const { itemId } = req.params;
@@ -109,12 +108,11 @@ export const getPaymentsByItem = async (req: Request, res: Response): Promise<vo
 
 
 
-// নির্দিষ্ট ইউজারের বা সব পেমেন্ট এবং ব্যাজ দেখার জন্য
+// User payment & badge show
 export const getUserPayments = async (req: Request, res: Response): Promise<void> => {
   try {
-    const email = req.query.email as string; // এখানে string হিসেবে কাস্ট করা হয়েছে
+    const email = req.query.email as string;
     
-    // ইমেইল থাকলে ফিল্টার হবে, না থাকলে সব পেমেন্ট দেখাবে
     const query = email ? { userEmail: email } : {};
     
     const payments = await Payment.find(query).sort({ createdAt: -1 });
