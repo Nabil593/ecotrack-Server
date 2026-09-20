@@ -29,7 +29,7 @@ const userSchema = new Schema<IUser>({
   },
   stripeCustomerId: { type: String, default: '' },
 }, {
-  timestamps: true, // এটি স্বয়ংক্রিয়ভাবে createdAt এবং updatedAt হ্যান্ডেল করবে
+  timestamps: true,
 });
 
 export const User = model<IUser>('User', userSchema);
