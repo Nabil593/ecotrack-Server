@@ -8,10 +8,8 @@ export const getItems = async (req: Request, res: Response) => {
     const { search, category, impactTier, sort, page = '1', limit = '8' } = req.query;
     let query: any = {};
 
-    // স্ট্যাটাস ফিল্টার নিশ্চিত করা (শুধু approved আইটেমগুলো দেখাবে)
     query.status = 'approved';
 
-    // ১. সার্চ কুয়েরি (টাইটেল বা ডেসক্রিপশনে ম্যাচ করবে, কেস-ইনসেন্সিটিভ)
     if (search && typeof search === 'string' && search.trim() !== '') {
       query.$or = [
         { title: { $regex: search.trim(), $options: 'i' } },
@@ -19,13 +17,11 @@ export const getItems = async (req: Request, res: Response) => {
       ];
     }
 
-    // ২. ক্যাটাগরি ফিল্টার (একাধিক ক্যাটাগরি কমা দিয়ে হ্যান্ডেল করার সুবিধা সহ)
     if (category && typeof category === 'string' && category.trim() !== '') {
       const categories = category.split(',').map(cat => cat.trim());
       query.category = { $in: categories };
     }
 
-    // ৩. ইমপ্যাক্ট টিয়ার ফিল্টার
     if (impactTier && typeof impactTier === 'string') {
       if (impactTier === 'High') {
         query.impactScore = { $gte: 80 };
@@ -36,7 +32,6 @@ export const getItems = async (req: Request, res: Response) => {
       }
     }
 
-    // ৪. সোর্টিং অপশন
     let sortOption: any = { createdAt: -1 };
     if (sort === 'cost-asc') {
       sortOption = { cost: 1 };
@@ -50,7 +45,6 @@ export const getItems = async (req: Request, res: Response) => {
     const limitNum = Math.max(parseInt(limit as string, 10) || 8, 1);
     const skip = (pageNum - 1) * limitNum;
 
-    // ডাটা ফেচ এবং টোটাল কাউন্ট
     const items = await Item.find(query)
       .sort(sortOption)
       .skip(skip)
@@ -133,7 +127,6 @@ export const getItemsByUser = async (req: Request, res: Response) => {
 };
 
 
-// User States
 // User States
 export const getUserStats = async (req: Request, res: Response) => {
   try {
@@ -218,7 +211,7 @@ export const getUserStats = async (req: Request, res: Response) => {
 };
 
 
-// নতুন আইটেম তৈরি
+// Add New Item
 export const createItem = async (req: Request, res: Response) => {
   try {
     const newItem = new Item(req.body);
@@ -229,7 +222,7 @@ export const createItem = async (req: Request, res: Response) => {
   }
 };
 
-// নির্দিষ্ট ইউজারের ইমেইল দিয়ে আইটেমগুলো ম্যানেজ করার জন্য ফেচ করা
+// User Item Manage
 export const getItemsByUserEmail = async (req: Request, res: Response) => {
   try {
     const { email } = req.params;
@@ -243,23 +236,45 @@ export const getItemsByUserEmail = async (req: Request, res: Response) => {
 
 
 
-// আইটেম আপডেট করার কন্ট্রোলার
+// Update Item
 export const updateItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updatedItem = await Item.findOneAndUpdate({ _id: id }, req.body, { new: true });
-    
+
+    const updatedItem = await Item.findByIdAndUpdate(
+      id,
+      {
+        $set: req.body,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
     if (!updatedItem) {
-      return res.status(404).json({ success: false, message: 'Item not found' });
+      return res.status(404).json({
+        success: false,
+        message: "Item not found",
+      });
     }
-    
-    res.status(200).json({ success: true, data: updatedItem });
+
+    return res.status(200).json({
+      success: true,
+      message: "Item updated successfully",
+      data: updatedItem,
+    });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Update item error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to update item",
+    });
   }
 };
 
-// আইটেম ডিলিট করার কন্ট্রোলার
+// Item Delete 
 export const deleteItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
