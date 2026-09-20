@@ -18,7 +18,7 @@ const paymentSchema = new Schema<IPayment>({
   amount: { type: Number, required: true },
   transactionId: { type: String, required: true, unique: true },
   userEmail: { type: String, required: true },
-  paymentType: { type: String, default: 'project-fund' }, // Updated default schema value
+  paymentType: { type: String, default: 'project-fund' },
   status: { type: String, default: 'success' },
   badge: { type: String, default: 'Bronze Green Contributor' },
   createdAt: { type: Date, default: Date.now },
